@@ -96,4 +96,21 @@ This is the place for you to write reflections:
     - Misal kita hanya menggunakan Model untuk mengelola semua logika, maka akan terjadi keterikatan yang kuat antar model nya, misal pada kasus bambangshop, model Product harus tahu cara memanggil model notification, dan model Notification harus tahu cara mencari daftar subscriber, yang membuat satu file model menjadi sangat panjang dan sulit dibaca, juga akan sangat sulit di maintain, misal setiap kali ada perubahan kecil pada alur notifikasi, kita harus mengubah code di main model yang berisiko untuk merusak struktur base model tersebut.
 3. Have you explored more about Postman? Tell us how this tool helps you to test your current work. You might want to also list which features in Postman you are interested in or feel like it is helpful to help your Group Project or any of your future software engineering projects.
     - Ya, saya sudah beberapa kali mengeksplor tentang postman, khususnya ketika mata kuliah Pemrograman Berbasis Platform, menurut saya, PostMan sangat membantu dalam proses pengembangan sistem, khususnya di pengembangan BackEnd, karena saya bisa menguji apakah suatu endpoint dapat berfungsi dengan benar tanpa harus menunggu aplikasi frontend selesai dibuat. Menurut saya, fitur menarik yang ada dalam PostMan adalah Collections dimana fitur ini sangat membantu untuk mengelompokkan request berdasarkan modul, selain itu juga terdapat fitur Environment Variables dimana kita bisa menyimpan variable seperti base_url, sehingga jika port aplikasi berubah, misal dari 8000 menjadi 8080, kita cukup mengubah satu variable saja. Untuk masa depan, fitur mock servers di PostMan akan sangat berguna agar team project akhir saya yang menangani FrontEnd bisa mulai bekerja dengan Mock API sementara team BackEnd masih menyusun logic aslinya.
+
 #### Reflection Publisher-3
+1. Observer Pattern has two variations: Push model (publisher pushes data to subscribers) and Pull model (subscribers pull data from publisher). In this tutorial case, which variation of Observer Pattern that we use?
+    - Dalam tutorial ini, kita menggunakan Push Model, dimana data dikirimkan langsung oleh NotificationService ke setiap Subscriber melalui pemanggilan method `update()` segera setelah ada perubahan status. Publisher memiliki hak kontrol penuh atas mendistribusikan data ke URL subscriber tanpa menunggu subscriber memintanya
+   
+2. What are the advantages and disadvantages of using the other variation of Observer Pattern for this tutorial case? (example: if you answer Q1 with Push, then imagine if we used Pull)
+    - Jika kita menggunakan Pull Model, di mana subscriber secara aktif mengecek perubahan ke server:
+        - Keuntungan:
+            - Server tidak perlu mengelola daftar panjang subscriber dan mencoba mengirimkan ribuan request HTTP secara bersamaan.
+            - Subscriber dapat menentukan sendiri kapan mereka ingin mengambil data sesuai dengan kapasitas resource mereka sendiri.
+        - Kekurangan:
+            - Ada jeda waktu antara perubahan data di server hingga subscriber melakukan polling (pengecekan). Data mungkin sudah basi saat diambil.
+            - Jika tidak ada perubahan data namun subscriber terus melakukan pengecekan, ini akan membuang-buang bandwidth dan beban kerja CPU pada server (masalah empty polling).
+          
+3. Explain what will happen to the program if we decide to not use multi-threading in the notification process.
+   - Jika proses notifikasi dilakukan secara sequential tanpa multi threading, maka program akan menunggu satu HTTP request update() selesai sebelum lanjut ke subscriber berikutnya.
+   - User yang mentriigger aksi tsb harus menunggu sangat lama sampai semua notifikasi di push ke seluruh subscriber selesai terkirim sebelum mendapatkan response "Success"
+   - Jika satu subscriber memiliki URL yang sangat lambat atau sedang down, hal tersebut akan emnghambat proses pengiriman notifikasi ke subscriber lain yang sebenarnya sehat.
